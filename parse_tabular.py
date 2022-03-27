@@ -1,33 +1,37 @@
 """=====================================================================================================================
-This scripts parses through a xml file.
+This scripts parses through the log.txt file and writes each run and piece of equipment into a file with the desired
+attributes.
+
 
 Ben Iovino  3/25/2022   RunSQLight
 ====================================================================================================================="""
 
-from time import sleep
-
-def parse_xml(xml):
+def parse_tabular(tab):
     """=================================================================================================================
-    This function accepts an xml file and parses it, returning a list of each values for each attribute.
+    This function accepts a tabular file and parses it.
 
-    :param file: file name e.g. run.xml
+    :param file: file name e.g. log.txt
     ================================================================================================================="""
 
-    with open(xml, 'r') as file:
+    # Initialize dictionary where date + time is key
+    run_dict = dict()
+    with open(tab, 'r') as file:
 
+        # Split each line by tab character
         for line in file:
-
-            print(line)
-
+            split_line = line.split('\t')
+            date = split_line[0]
+            time = split_line[1]
+            print(date+time)
 
 def main():
     """=================================================================================================================
     The main function is used to define the xml file being parsed and run parse_xml().
     ================================================================================================================="""
 
-    file = 'log.xml'
+    file = 'log.txt'
 
-    parse_xml(file)
+    parse_tabular(file)
 
 
 main()
