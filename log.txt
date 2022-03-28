@@ -1,4 +1,3 @@
-Date	TimeOfDay	Type	SubType	Distance	DistanceUnit	Duration	Weight	WeightUnit	RestHR	AvgHR	MaxHR	Sleep	Calories	Quality	Effort	Weather	Temperature	TempUnit	Notes	Course	CourseSurface	CourseNotes	ShoeMake	ShoeModel	Size	System	ShoeSerial	ShoePrice	OverallPlace	FieldSize	GroupMinAge	GroupMaxAge	GroupPlace	GroupSize	GenderPlace	GenderSize	
 2015-08-05		Run	Easy	1.38	Mile	0:14:01													Warmup																	
 2015-08-05		Run	Easy	1.44	Mile	0:11:18													Cooldown. Starting to enter in old workouts to fill out runningahead, this should be fun!																	
 2015-08-05		Run	Interval	3.40	Mile	0:22:49													4 x K with hard mile<br><br>4:07/3:52/4:32/4:16 and 6:02																	

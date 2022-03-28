@@ -6,6 +6,8 @@ attributes.
 Ben Iovino  3/25/2022   RunSQLight
 ====================================================================================================================="""
 
+import uuid
+
 def parse_tabular(tab):
     """=================================================================================================================
     This function accepts a tabular file and parses it.
@@ -13,16 +15,41 @@ def parse_tabular(tab):
     :param file: file name e.g. log.txt
     ================================================================================================================="""
 
-    # Initialize dictionary where date + time is key
+    # Initialize dictionaries
     run_dict = dict()
+    shoes = dict()
+
     with open(tab, 'r') as file:
 
-        # Split each line by tab character
+        # Split each line (each run) by tab character
         for line in file:
+
+            # Give run uuid, split tabular line
+            id = str(uuid.uuid1())
             split_line = line.split('\t')
-            date = split_line[0]
-            time = split_line[1]
-            print(date+time)
+
+            # Initialize date and time
+            datetime = split_line[0]
+            if split_line[1] != '':
+                datetime += (f' {split_line[1]}')
+
+            # Initialize type, distance, duration, note string, and shoe string
+            type = split_line[3]
+            distance = split_line[4]
+            duration = split_line[6]
+            notes = split_line[19]
+            temp_shoe = split_line[23]+split_line[24]+split_line[27]
+
+            # Check if line's shoe is same as previous, add distance to shoe
+            if temp_shoe not in shoes.keys():
+                shoes.update({temp_shoe: int(distance)})
+            else:
+                new_shoe = split_line[23]+split_line[24]+split_line[27]
+
+
+            # Update dict
+            run_dict.update({id: [datetime, type, distance, duration, notes, shoe]})
+
 
 def main():
     """=================================================================================================================
