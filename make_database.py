@@ -7,13 +7,25 @@ Ben Iovino  3/28/2022   RunSQLight
 import os
 import sqlite3 as sq3
 
-def read_file(file):
+def read_directory(path):
     """=================================================================================================================
-    This function reads a text file delimited by '\n' and returns each line as index in a list
-    :param file: .txt file
+    This function reads text files in a directory and returns each line as index in a list
+    :param path: full directory path
     :return filelist: list of lines from file
     ================================================================================================================="""
 
+    # Read each file in directory
+    for file in os.listdir(path):
+        with open(path+file, 'r') as f:
+
+            # Assign each line in file to a variable to easily insert into db, some lines missing notes
+            lines = f.readlines()
+            if len(lines) == 4:
+                datetime, runtype, distance, duration = ([lines[i].split(' \n')[0] for i in range(0, 4)])
+                varlist = [datetime, runtype, distance, duration]
+            if len(lines) == 5:
+                datetime, runtype, distance, duration, notes = ([lines[i].split(' \n')[0] for i in range(0, 5)])
+                varlist = [datetime, runtype, distance, duration, notes]
 
 
 def make_database_tables(db):
@@ -39,8 +51,10 @@ def main():
     dbh = sq3.connect('RunSQLight.db')
     db = dbh.cursor()
 
-    for file in
-    make_database_tables(db)
+    path = 'C:/Users/biovi/PycharmProjects/RunSQLight/Data/Runs/'
+    read_directory(path)
+
+    # make_database_tables(db)
     
     
 main()
