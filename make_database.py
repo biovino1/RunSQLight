@@ -7,9 +7,45 @@ Ben Iovino  3/28/2022   RunSQLight
 import os
 import sqlite3 as sq3
 
-def read_directory(path):
+
+def make_database_tables(db):
     """=================================================================================================================
-    This function reads text files in a directory and returns each line as index in a list
+    This function creates tables for the database
+    :param db: database cursor from SQLite3
+    ================================================================================================================="""
+
+    sq3 = '''
+        CREATE TABLE IF NOT EXISTS  runs
+        (   run_id TEXT PRIMARY KEY,
+            datetime TEXT,
+            type TEXT 
+            distance INTEGER,
+            duration TEXT,
+            notes TEXT  )
+        '''
+    db.execute(sq3)
+
+    sq3 = '''
+        CREATE TABLE IF NOT EXISTS type
+        (   type TEXT PRIMARY KEY,
+            easy TEXT,
+            long TEXT,
+            hills TEXT,
+            tempo TEXT,
+            interval TEXT,
+            race TEXT   )
+        '''
+    db.execute(sq3)
+
+    sq3 = '''
+        CREATE TABLE IF NOT EXISTS shoes
+        (   shoe TEXT PRIMARY KEY,
+            distance INTEGER    )
+        '''
+
+def read_directory(path, db):
+    """=================================================================================================================
+    This function reads text files in a directory and inserts each line into database
     :param path: full directory path
     :return filelist: list of lines from file
     ================================================================================================================="""
@@ -19,28 +55,22 @@ def read_directory(path):
         with open(path+file, 'r') as f:
 
             # Assign each line in file to a variable to easily insert into db, some lines missing notes
+            run_id = file.strip('.txt')
             lines = f.readlines()
-            if len(lines) == 4:
-                datetime, runtype, distance, duration = ([lines[i].split(' \n')[0] for i in range(0, 4)])
-                varlist = [datetime, runtype, distance, duration]
+            datetime, runtype, distance, duration = ([lines[i].split(' \n')[0] for i in range(0, 4)])
             if len(lines) == 5:
-                datetime, runtype, distance, duration, notes = ([lines[i].split(' \n')[0] for i in range(0, 5)])
-                varlist = [datetime, runtype, distance, duration, notes]
+                notes = (lines[4].split(' \n')[0])
+            else:
+                notes = 'NA'
 
+            # Insert into db
+            params = (run_id, datetime, runtype, distance, duration, notes)
+            sq3 = f'''
+                INSERT INTO runs
+                    VALUES(?, ?, ?, ?, ?, ?)
+                '''
+            db.execute(sq3, params)
 
-def make_database_tables(db):
-    """=================================================================================================================
-    This function creates tables for the database
-    :param db: database cursor
-    ================================================================================================================="""
-
-    sq3 = '''
-        CREATE TABLE IF NOT EXISTS  Runs
-        (   run_id TEXT 
-            distance INTEGER)
-        '''
-    db.execute(sq3)
-    
 
 def main():
     """=================================================================================================================
@@ -50,11 +80,11 @@ def main():
     
     dbh = sq3.connect('RunSQLight.db')
     db = dbh.cursor()
+    make_database_tables(db)
 
+    # Read directory and insert runs into database
     path = 'C:/Users/biovi/PycharmProjects/RunSQLight/Data/Runs/'
-    read_directory(path)
-
-    # make_database_tables(db)
+    read_directory(path, db)
     
     
 main()
