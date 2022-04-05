@@ -33,6 +33,10 @@ def parse_tabular(tab):
             split_line = line.split('\t')
             id = str(uuid.uuid1())
 
+            # Pass entries that aren't runs
+            if split_line[2] != 'Run':
+                continue
+
             # Initialize date and time
             datetime = split_line[0]
             if split_line[1] != '':

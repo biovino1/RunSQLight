@@ -15,25 +15,13 @@ def make_database_tables(db):
     ================================================================================================================="""
 
     sq3 = '''
-        CREATE TABLE IF NOT EXISTS  runs
+        CREATE TABLE IF NOT EXISTS runs
         (   run_id TEXT PRIMARY KEY,
             datetime TEXT,
-            type TEXT 
-            distance INTEGER,
+            type TEXT,
+            distance FLOAT,
             duration TEXT,
             notes TEXT  )
-        '''
-    db.execute(sq3)
-
-    sq3 = '''
-        CREATE TABLE IF NOT EXISTS type
-        (   type TEXT PRIMARY KEY,
-            easy TEXT,
-            long TEXT,
-            hills TEXT,
-            tempo TEXT,
-            interval TEXT,
-            race TEXT   )
         '''
     db.execute(sq3)
 
@@ -42,6 +30,7 @@ def make_database_tables(db):
         (   shoe TEXT PRIMARY KEY,
             distance INTEGER    )
         '''
+    db.execute(sq3)
 
 def read_directory(path, db):
     """=================================================================================================================
@@ -64,10 +53,10 @@ def read_directory(path, db):
                 notes = 'NA'
 
             # Insert into db
-            params = (run_id, datetime, runtype, distance, duration, notes)
-            sq3 = f'''
+            params = (run_id, datetime, runtype, float(distance), duration, notes)
+            sq3 = '''
                 INSERT INTO runs
-                    VALUES(?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ? );
                 '''
             db.execute(sq3, params)
 
