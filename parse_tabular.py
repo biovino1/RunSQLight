@@ -78,21 +78,19 @@ def write_dictionaries(dict, dict1):
     path = 'C:/Users/biovi/PycharmProjects/RunSQLight/Data/'
     if not os.path.isdir(path):
         os.mkdir(path)
-        os.mkdir(path+'Runs')
-        os.mkdir(path+'Shoes')
     else:
         print('Data directories already exist.')
 
-    # Write each dictionary key and values into text file
-    for key in dict.keys():
-        with open(f'{path}Runs/{key}.txt', 'w') as file:
-            runstring = ' \n'.join(dict[key])
-            file.write(runstring)
+    # Write dictionary key and values into text file
+    with open(f'{path}runs.txt', 'w') as file:
+        for key in dict.keys():
+            runstring = ' \t'.join(dict[key])
+            file.write(key+'\t'+runstring+'\n')
 
-    for key in dict1.keys():
-        with open(f'{path}Shoes/{key}.txt', 'w') as file:
+    with open(f'{path}shoes.txt', 'w') as file:
+        for key in dict1.keys():
             shoestring = str(dict1[key])
-            file.write(shoestring)
+            file.write(key+'\t'+shoestring+'\n')
 
 
 def main():

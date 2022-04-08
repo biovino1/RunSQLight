@@ -32,11 +32,14 @@ def make_database_tables(db):
         '''
     db.execute(sq3)
 
-def read_directory(path, db):
+
+def read_directory(path, db, dbh):
     """=================================================================================================================
     This function reads text files in a directory and inserts each line into database
+
     :param path: full directory path
-    :return filelist: list of lines from file
+    :param db: database cursor object
+    :param dbh: database connection object
     ================================================================================================================="""
 
     # Read each file in directory
@@ -56,9 +59,10 @@ def read_directory(path, db):
             params = (run_id, datetime, runtype, float(distance), duration, notes)
             sq3 = '''
                 INSERT INTO runs
-                    VALUES (?, ?, ?, ?, ?, ? );
+                    VALUES (?, ?, ?, ?, ?, ? )
                 '''
             db.execute(sq3, params)
+            dbh.commit()
 
 
 def main():
@@ -73,7 +77,7 @@ def main():
 
     # Read directory and insert runs into database
     path = 'C:/Users/biovi/PycharmProjects/RunSQLight/Data/Runs/'
-    read_directory(path, db)
+    read_directory(path, db, dbh)
     
     
 main()
