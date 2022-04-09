@@ -1,7 +1,7 @@
 """=====================================================================================================================
-This scripts creates a SQLite database and imports data from many files.
+This scripts creates a SQLite database from data inside files.
 
-Ben Iovino  3/28/2022   RunSQLight
+Ben Iovino  4/9/22   RunSQLight
 ===================================================================================================================="""
 
 import os
@@ -11,6 +11,7 @@ import sqlite3 as sq3
 def make_database_tables(db):
     """=================================================================================================================
     This function creates tables for the database
+
     :param db: database cursor from SQLite3
     ================================================================================================================="""
 
@@ -33,42 +34,73 @@ def make_database_tables(db):
     db.execute(sq3)
 
 
+def database_insert(db, dbh, table, params):
+    """=================================================================================================================
+    This function inserts data into the desired database table
+
+    :param db: database cursor object
+    :param dbh: database connection object
+    :param table: database table name
+    :param params: tuple of parameters
+    ================================================================================================================="""
+
+    # Determine how many values are being inserted
+    values = ['?'] * len(params)
+    values = ", ".join(values)
+
+    # Insert into db
+    sq3 = f'''
+        INSERT INTO {table}
+            VALUES ({values})
+        '''
+    db.execute(sq3, params)
+    dbh.commit()
+
+
 def read_directory(path, db, dbh):
     """=================================================================================================================
-    This function reads text files in a directory and inserts each line into database
+    This function reads text files in a directory and inserts each line into database by calling database_insert()
 
     :param path: full directory path
     :param db: database cursor object
     :param dbh: database connection object
     ================================================================================================================="""
 
-    # Read each file in directory
-    for file in os.listdir(path):
-        with open(path+file, 'r') as f:
+    # Read runs file in the directory
+    with open(path+'runs.txt', 'r') as f:
+        for line in f:
 
-            # Assign each line in file to a variable to easily insert into db, some lines missing notes
-            run_id = file.strip('.txt')
-            lines = f.readlines()
-            datetime, runtype, distance, duration = ([lines[i].split(' \n')[0] for i in range(0, 4)])
-            if len(lines) == 5:
-                notes = (lines[4].split(' \n')[0])
+            # Split tabular line and assign each element to a variable
+            line = line.rstrip()
+            splitline = line.split('\t')
+            run_id, datetime, runtype, distance, duration = ([splitline[i] for i in range(0, 5)])
+            if len(splitline) == 6:
+                notes = (splitline[5])
             else:
                 notes = 'NA'
 
             # Insert into db
             params = (run_id, datetime, runtype, float(distance), duration, notes)
-            sq3 = '''
-                INSERT INTO runs
-                    VALUES (?, ?, ?, ?, ?, ? )
-                '''
-            db.execute(sq3, params)
-            dbh.commit()
+            database_insert(db, dbh, 'runs', params)
 
+    # Read shoes file in the directory
+    with open(path+'shoes.txt', 'r') as f:
+        for line in f:
+
+            # Split tabular line and assign each element to a variable
+            line = line.rstrip()
+            splitline = line.split('\t')
+            shoe_id, distance = ([splitline[i] for i in range(0, 2)])
+
+            # Insert into db
+            params = (shoe_id, distance)
+            database_insert(db, dbh, 'shoes', params)
 
 def main():
     """=================================================================================================================
-    The main function connects database file and initializes the cursor object. read_file() is called to read each
-    file in a directory. The returned list is sent to make_database_tables() where it is added to the database.
+    The main function connects database file and initializes the cursor object. make_database_tables() is called with
+    cursor object to create desired tables. read_directory() is called with initialized path to read files and insert
+    data into database.
     ================================================================================================================="""
     
     dbh = sq3.connect('RunSQLight.db')
@@ -76,7 +108,7 @@ def main():
     make_database_tables(db)
 
     # Read directory and insert runs into database
-    path = 'C:/Users/biovi/PycharmProjects/RunSQLight/Data/Runs/'
+    path = 'C:/Users/biovi/PycharmProjects/RunSQLight/Data/'
     read_directory(path, db, dbh)
     
     

@@ -1,7 +1,7 @@
 """=====================================================================================================================
-This scripts parses through the log.txt file and writes each run and shoe into an individual file.
+This scripts parses through the log.txt file and writes runs and shoes into separate files.
 
-Ben Iovino  3/28/2022   RunSQLight
+Ben Iovino  4/9/22   RunSQLight
 ====================================================================================================================="""
 
 import uuid
@@ -13,11 +13,11 @@ def parse_tabular(tab):
     This function accepts a tabular file, parses it, and returns two dictionaries. The 'runs' dict contains a uuid
     for each run as the key, then desired info as values. The 'shoes' dict contains a shoe name as a key and total
     distance run on that shoe as its value.
+
     :param tab: file name e.g. log.txt
     :return runs: dictionary of runs with uuid as key i.e.
-        47cde8a1-ae3b-11ec-9069-902b34362ae0: ['1943-05-16 6:02 AM', 'Easy', '9.02', '1:02:39', 'Hard day at mill']
-    :return shoes: dictionary of shoes with shoe name as key i.e.
-        DuctTape v3: 32
+        47cde8a1-ae3b-11ec-9069-902b34362ae0: ['1943-05-16 6:02 AM', 'Easy', '9.02', '1:02:39', 'Hard day at work']
+    :return shoes: dictionary of shoes with shoe name as key i.e. DuctTape v3: 32
     ================================================================================================================="""
 
     # Initialize dictionaries
@@ -71,6 +71,7 @@ def parse_tabular(tab):
 def write_dictionaries(dict, dict1):
     """=================================================================================================================
     This function accepts dictionaries and prints them into text files.
+
     :param dict: Dict object
     ================================================================================================================="""
 
