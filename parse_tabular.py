@@ -16,7 +16,7 @@ def parse_tabular(tab):
 
     :param tab: file name e.g. log.txt
     :return runs: dictionary of runs with uuid as key i.e.
-        47cde8a1-ae3b-11ec-9069-902b34362ae0: ['1943-05-16 6:02 AM', 'Easy', '9.02', '1:02:39', 'Hard day at work']
+        47cde8a1-ae3b-11ec-9069-902b34362ae0: ['1943-05-16 6:02 AM', 'Easy', '9.02', '1:02:39', '7:37', 'Fun run']
     :return shoes: dictionary of shoes with shoe name as key i.e. DuctTape v3: 32
     ================================================================================================================="""
 
@@ -61,13 +61,11 @@ def parse_tabular(tab):
             duration_sec = sum(x * int(t) for x, t in zip([3600, 60, 1], duration.split(":")))
             pace_sec = duration_sec/float(distance)
             pace_min = pace_sec // 60
-            pace_sec = round(pace_sec % 60, 0)
-            print(pace_sec)
-            if len(pace_sec) == 1:
+            pace_sec = pace_sec % 60
+            if pace_sec < 10:
                 pace = f'{int(pace_min)}:0{int(pace_sec)}'
-            if len(pace_sec) == 2:
-                pace = f'{int(pace_min)}:0{int(pace_sec)}'
-            print(pace)
+            else:
+                pace = f'{int(pace_min)}:{int(pace_sec)}'
 
             # Check line for no shoe entry
             if split_line[23] != '':
@@ -83,7 +81,7 @@ def parse_tabular(tab):
                         shoes[shoe] += round(float(distance))
 
             # Update dict
-            runs.update({id: [datetime, type, distance, duration, notes]})
+            runs.update({id: [datetime, type, distance, duration, pace, notes]})
 
         return runs, shoes
 

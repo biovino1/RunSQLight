@@ -20,8 +20,9 @@ def make_database_tables(db):
         (   run_id TEXT PRIMARY KEY,
             datetime TEXT,
             type TEXT,
-            distance FLOAT,
+            distance REAL,
             duration TEXT,
+            pace TEXT,
             notes TEXT  )
         '''
     db.execute(sq3)
@@ -73,14 +74,14 @@ def read_directory(path, db, dbh):
             # Split tabular line and assign each element to a variable
             line = line.rstrip()
             splitline = line.split('\t')
-            run_id, datetime, runtype, distance, duration = ([splitline[i] for i in range(0, 5)])
-            if len(splitline) == 6:
-                notes = (splitline[5])
+            run_id, datetime, runtype, distance, duration, pace = ([splitline[i] for i in range(0, 6)])
+            if len(splitline) == 7:
+                notes = (splitline[6])
             else:
                 notes = 'NA'
 
             # Insert into db
-            params = (run_id, datetime, runtype, float(distance), duration, notes)
+            params = (run_id, datetime, runtype, float(distance), duration, pace, notes)
             database_insert(db, dbh, 'runs', params)
 
     # Read shoes file in the directory
