@@ -45,9 +45,29 @@ def parse_tabular(tab):
             # Initialize type, distance, duration, note string, and shoe string
             type = split_line[3]
             distance = split_line[4]
-            duration = split_line[6]
+
+            # Format duration string so time matches 00:00:00 (H:M:S)
+            duration = split_line[6].split(":")
+            hours, minutes, seconds = duration[0], duration[1], duration[2].split('.')[0]
+            if len(minutes) == 1:
+                duration = f'0{hours}:0{minutes}:{seconds}'
+            if len(minutes) == 2:
+                duration = f'0{hours}:{minutes}:{seconds}'
+
             notes = split_line[19]
             notes = notes.replace('<br>', '\t')  # Clean notes
+
+            # Calculate pace from distance and duration
+            duration_sec = sum(x * int(t) for x, t in zip([3600, 60, 1], duration.split(":")))
+            pace_sec = duration_sec/float(distance)
+            pace_min = pace_sec // 60
+            pace_sec = round(pace_sec % 60, 0)
+            print(pace_sec)
+            if len(pace_sec) == 1:
+                pace = f'{int(pace_min)}:0{int(pace_sec)}'
+            if len(pace_sec) == 2:
+                pace = f'{int(pace_min)}:0{int(pace_sec)}'
+            print(pace)
 
             # Check line for no shoe entry
             if split_line[23] != '':

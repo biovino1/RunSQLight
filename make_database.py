@@ -67,7 +67,7 @@ def read_directory(path, db, dbh):
     ================================================================================================================="""
 
     # Read runs file in the directory
-    with open(path+'runs.txt', 'r') as f:
+    with open(path + 'runs.txt', 'r') as f:
         for line in f:
 
             # Split tabular line and assign each element to a variable
@@ -84,9 +84,8 @@ def read_directory(path, db, dbh):
             database_insert(db, dbh, 'runs', params)
 
     # Read shoes file in the directory
-    with open(path+'shoes.txt', 'r') as f:
+    with open(path + 'shoes.txt', 'r') as f:
         for line in f:
-
             # Split tabular line and assign each element to a variable
             line = line.rstrip()
             splitline = line.split('\t')
@@ -96,13 +95,14 @@ def read_directory(path, db, dbh):
             params = (shoe_id, distance)
             database_insert(db, dbh, 'shoes', params)
 
+
 def main():
     """=================================================================================================================
     The main function connects database file and initializes the cursor object. make_database_tables() is called with
     cursor object to create desired tables. read_directory() is called with initialized path to read files and insert
     data into database.
     ================================================================================================================="""
-    
+
     dbh = sq3.connect('RunSQLight.db')
     db = dbh.cursor()
     make_database_tables(db)
@@ -110,7 +110,7 @@ def main():
     # Read directory and insert runs into database
     path = 'C:/Users/biovi/PycharmProjects/RunSQLight/Data/'
     read_directory(path, db, dbh)
-    
-    
+
+
 main()
-    
+
