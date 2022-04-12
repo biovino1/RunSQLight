@@ -23,6 +23,7 @@ def make_database_tables(db):
             distance REAL,
             duration TEXT,
             pace TEXT,
+            weather TEXT,
             notes TEXT  )
         '''
     db.execute(sq3)
@@ -80,8 +81,9 @@ def read_directory(path, db, dbh):
             else:
                 notes = 'NA'
 
-            # Insert into db
-            params = (run_id, datetime, runtype, float(distance), duration, pace, notes)
+            # Insert into db, weather is empty string
+            weather = 'NA'
+            params = (run_id, datetime, runtype, float(distance), duration, pace, weather, notes)
             database_insert(db, dbh, 'runs', params)
 
     # Read shoes file in the directory

@@ -1,11 +1,21 @@
 """=====================================================================================================================
-This scripts prompts the user for data to insert into the connected database.
+This scripts prompts the user for data to insert into the connected database. Weather data is taken from weather
+underground and inserted as well.
 
 Ben Iovino  4/12/22   RunSQLight
 ===================================================================================================================="""
 
 import sqlite3 as sq3
+import beautifulsoup
+import selenium
 
+
+def get_weather(zipcode):
+    """=================================================================================================================
+    This function is used to get weather data from weather underground
+
+    :param zipcode: 5 digit number i.e. 47906
+    =============================================================================================================="""
 
 def get_input():
     """=================================================================================================================
@@ -20,6 +30,7 @@ def get_input():
         type = input('Enter type of run: ')
         distance = float(input('Enter distance of run: '))
         duration = input('Enter duration of run (i.e. HH:MM:SS): ')
+        zipcode = input('Enter zipcode to get weather: ')
         notes = input('Notes: ')
 
         # Break loop if user types Y, continue if N
@@ -37,6 +48,8 @@ def get_input():
     pace_min = pace_sec // 60
     pace_sec = pace_sec % 60
     pace = f'{int(pace_min)}:{int(pace_sec)}'
+
+    # Scrape weather by putting zipcode into get_weather()
 
     # Return input
     input_tuple = [datetime, type, distance, duration, pace, notes]
