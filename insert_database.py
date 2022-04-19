@@ -1,70 +1,127 @@
 """=====================================================================================================================
-This scripts prompts the user for data to insert into the connected database. Weather data is taken from weather
-underground and inserted as well.
+This scripts prompts the user for data to insert into the connected database.
 
-Ben Iovino  4/12/22   RunSQLight
+Ben Iovino  4/19/22   RunSQLight
 ===================================================================================================================="""
 
 import sqlite3 as sq3
-import selenium
+import uuid
 
 
-def get_weather(zipcode):
+def check_flag(input_flag):
     """=================================================================================================================
-    This function is used to get weather data from weather underground
+    This function takes a string value and returns a boolean value.
 
-    :param zipcode: 5 digit number i.e. 47906
-    =============================================================================================================="""
-
-    driver = webdriver.Firefox()
-    driver.get('https://www.wunderground.com')
-
-    search_bar = driver.find_element_by_id('wuSearch')
-    search_bar.sendKeys(zipcode)
-
-
-def get_input():
-    """=================================================================================================================
-    This function is used to gather user input and return it as a tuple
-
-    :return userinput: tuple of values
+    :param input_flag: string value i.e. 'Y' for yes, 'N' for no
+    :return flag: bool value i.e. True or False
     ================================================================================================================="""
 
     flag = True
-    while flag == True:
-        datetime = input('Enter date and time (i.e. 2022-01-01 12:00 AM): ')
-        #type = input('Enter type of run: ')
-        #distance = float(input('Enter distance of run: '))
-        #duration = input('Enter duration of run (i.e. HH:MM:SS): ')
-        zipcode = input('Enter zipcode to get weather: ')
-        #notes = input('Notes: ')
-        '''
-        # Break loop if user types Y, continue if N
+    if input_flag == 'Y':
+        flag = False
+    elif input_flag == 'N':
         print()
-        input_flag = input('Does everything look correct? (Y/N): ')
-        if input_flag == 'Y':
+
+    return flag
+
+
+def welcome_user():
+    """=================================================================================================================
+    This function welcomes the user and directs them to the desired database table.
+
+    :return input_table: str of table name to insert data into
+    ================================================================================================================="""
+
+    print()
+    print('Welcome to RunSQLight! You are connected to your database.')
+    print()
+
+    # Ensuring correct input from user
+    flag = True
+    while flag:
+        input_table = input('Would you like to add a run or a shoe?: ')
+        if input_table.lower() == 'run':
+            input_table = 'runs'
             flag = False
-        elif input_flag == 'N':
+        if input_table.lower() == 'shoe':
+            input_table = 'shoes'
+            flag = False
+
+    print()
+    print(f'You are adding to the {input_table} table.')
+    print()
+
+    return input_table
+
+
+def get_input(table_input):
+    """=================================================================================================================
+    This function is used to gather user input and return it as a tuple
+
+    :param table_input: table that values go into, decides input required
+    :return input_tuple: tuple of values
+    ================================================================================================================="""
+
+    # runs table input
+    flag = True
+    if table_input == 'runs':
+        while flag:
+            datetime = input('Enter date and time (i.e. 2022-01-01 12:00 AM): ')
+            type = input('Enter type of run: ')
+            distance = float(input('Enter distance of run: '))
+            duration = input('Enter duration of run (i.e. HH:MM:SS): ')
+            notes = input('Notes: ')
+
+            # Break loop if user types Y, continue if N
             print()
-            continue
+            input_flag = input('Does everything look correct? (Y/N): ')
+            flag = check_flag(input_flag)
 
-    # Calculate pace from distance and duration
-    duration_sec = sum(x * int(t) for x, t in zip([3600, 60, 1], duration.split(":")))
-    pace_sec = duration_sec / float(distance)
-    pace_min = pace_sec // 60
-    pace_sec = pace_sec % 60
-    pace = f'{int(pace_min)}:{int(pace_sec)}'
-    '''
+        # Calculate pace from distance and duration
+        duration_sec = sum(x * int(t) for x, t in zip([3600, 60, 1], duration.split(":")))
+        pace_sec = duration_sec / float(distance)
+        pace_min = pace_sec // 60
+        pace_sec = pace_sec % 60
+        pace = f'{int(pace_min)}:{int(pace_sec)}'
 
-    # Scrape weather by putting zipcode into get_weather()
-    get_weather(zipcode)
+        # Assign uuid and return tuple
+        run_id = str(uuid.uuid1())
+        input_tuple = [run_id, datetime, type, distance, duration, pace, notes]
+        return input_tuple
 
-    '''
-    # Return input
-    input_tuple = [datetime, type, distance, duration, pace, notes]
-    print(input_tuple)
-    return input_tuple
-    '''
+    # shoes table input
+    if table_input == 'shoes':
+        while flag:
+            shoe = input('Enter name and model of shoe: ')
+            distance = input('Enter previous distance on shoe: ')
+            retired = 'N'
+
+            print()
+            input_flag = input('Does everything look correct? (Y/N): ')
+            flag = check_flag(input_flag)
+
+
+def db_insert(dbh, db, input_table, input_tuple):
+    """=================================================================================================================
+    This function takes input tuple and inserts into connected SQLite db
+
+    :param dbh: SQLite db connection object
+    :param db: SQLite db cursor object
+    :param input_table: name of table to insert values into
+    :param input_tuple: tuple of 6 values
+    ================================================================================================================="""
+
+    # Determine how many values are being inserted
+    values = ['?'] * len(input_tuple)
+    values = ", ".join(values)
+
+    # Insert into db
+    sq3 = f'''
+           INSERT INTO {input_table}
+               VALUES ({values})
+           '''
+    db.execute(sq3, input_tuple)
+    dbh.commit()
 
 
 def main():
@@ -76,10 +133,10 @@ def main():
     dbh = sq3.connect('RunSQLight.db')
     db = dbh.cursor()
 
-    print()
-    print('Welcome to RunSQLight! You are connected to your database.')
-    print()
-    get_input()
+    input_table = welcome_user()
+
+    input_tuple = get_input(input_table)
+    db_insert(dbh, db, input_table, input_tuple)
 
 
 main()
