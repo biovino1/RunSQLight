@@ -100,6 +100,10 @@ def get_input(table_input):
             input_flag = input('Does everything look correct? (Y/N): ')
             flag = check_flag(input_flag)
 
+        # Return values as a tuple
+        input_tuple = [shoe, distance, retired]
+        return input_tuple
+
 
 def db_insert(dbh, db, input_table, input_tuple):
     """=================================================================================================================
