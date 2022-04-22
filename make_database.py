@@ -81,8 +81,9 @@ def read_directory(path, db, dbh):
             else:
                 notes = 'NA'
 
-            # Insert into db
-            params = (run_id, datetime, runtype, float(distance), duration, pace, notes)
+            # Insert into db, some strings contain spaces at the end
+            params = (run_id, datetime.rstrip(' '), runtype.rstrip(' '), float(distance),
+                      duration.rstrip(' '), pace.rstrip(' '), notes)
             database_insert(db, dbh, 'runs', params)
 
     # Read shoes file in the directory

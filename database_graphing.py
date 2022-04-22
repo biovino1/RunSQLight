@@ -17,14 +17,35 @@ def get_input():
 
     print()
     print('Enter various values when prompted to obtain a graph with the desired parameters.')
-    print('If you would like to ignore a certain parameter, simply skip the question.')
+    print('If you would like a general search, type "%" character in place of specific value.')
+    print('If you would like to ignore a certain parameter, simply skip the input.')
     print()
 
-    dates = input('Enter two dates to obtain all runs between: ')
-    type = input('Enter a specific type of run: ')
-    distance = input('Enter a specific distance: ')
-    duration = input('Enter a specific duration: ')
+    dates = input('Enter two dates to obtain all runs between (i.e. 2022-04-24): ')
+    type = input('Enter a specific type of run (i.e. Easy, Long, etc.): ')
+    distance = input('Enter a specific distance (i.e. 4): ')
+    duration = input('Enter a specific duration (i.e. 00:40:00): ')
+    pace = input('Enter a specific pace (i.e. 7:37): ')
     shoe = input('Enter a specific shoe: ')
+
+    input_tuple = [dates, type, int(distance), pace, duration, shoe]
+
+def make_graph(db):
+    """=================================================================================================================
+    This function unpacks a tuple and searches the connected database using values inside tuple
+
+    :param db: database cursor object
+    :param input_tuple: tuple of values
+    ================================================================================================================="""
+
+    sq3 = '''
+        SELECT * 
+        FROM runs
+        '''
+    db.execute(sq3)
+    rows = db.fetchall()
+    for row in rows:
+        print(row)
 
 def main():
     """=====================================================================================================================
@@ -32,6 +53,10 @@ def main():
     through search_database() to gather the data, which is passed through make_graph().
     ===================================================================================================================="""
 
-    input_tuple = get_input()
+    dbh = sq3.connect('RunSQLight.db')
+    db = dbh.cursor()
+
+    # input_tuple = get_input()
+    make_graph(db)
 
 main()
