@@ -22,12 +22,13 @@ def get_input():
     print()
     '''
     date = input('Enter a specific date (i.e. 2022-04-24): ')
+    time = input('Enter a specific time (i.e. 4:%% PM: ')
     type = input('Enter a specific type of run (i.e. Easy, Long, etc.): ')
     distance = input('Enter a specific distance (i.e. 4): ')
     duration = input('Enter a specific duration (i.e. 00:40:00): ')
     pace = input('Enter a specific pace (i.e. 7:37): ')
     '''
-    date, type, distance, duration, pace = ['%%%%-%%-%%', 'Long', '6.%', '%%:%%:%%', '%:%%']
+    date, time, type, distance, duration, pace = ['%%%%-%%-%%', '%:%% %%', 'Long', '6.%', '%%:%%:%%', '%:%%']
 
     input_tuple = [dates, type, distance, duration, pace]
     return input_tuple
@@ -45,7 +46,7 @@ def make_graph(db, input_tuple):
     sq3 = f'''
         SELECT * 
         FROM runs
-        WHERE datetime LIKE {input_tuple[0]}
+        WHERE date LIKE {input_tuple[0]}
         AND type LIKE {input_tuple[1]}
         '''
     db.execute(sq3)

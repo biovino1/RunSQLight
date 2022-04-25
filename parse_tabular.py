@@ -38,9 +38,8 @@ def parse_tabular(tab):
                 continue
 
             # Initialize date and time
-            datetime = split_line[0]
-            if split_line[1] != '':
-                datetime += f' {split_line[1]}'
+            date = split_line[0]
+            time = split_line[1]
 
             # Initialize type, distance, duration, note string, and shoe string
             type = split_line[3]
@@ -81,7 +80,7 @@ def parse_tabular(tab):
                         shoes[shoe] += round(float(distance))
 
             # Update dict
-            runs.update({id: [datetime, type, distance, duration, pace, notes]})
+            runs.update({id: [date, time, type, distance, duration, pace, notes]})
 
         return runs, shoes
 

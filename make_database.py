@@ -19,6 +19,7 @@ def make_database_tables(db):
         CREATE TABLE IF NOT EXISTS runs
         (   run_id TEXT PRIMARY KEY,
             date TEXT,
+            time TEXT,
             type TEXT,
             distance REAL,
             duration TEXT,
@@ -72,22 +73,21 @@ def read_directory(path, db, dbh):
     with open(path + 'runs.txt', 'r') as f:
         for line in f:
 
-            # Split tabular line and assign each element to a variable
+            # Split line and assign each element to a variable
             line = line.rstrip()
             splitline = line.split('\t')
-
-            # If there are both a date and a time, split into two values
-            datetime = splitline[1].rstrip()
-            print(datetime)
-            run_id, datetime, runtype, distance, duration, pace = ([splitline[i] for i in range(0, 6)])
-            if len(splitline) == 7:
-                notes = (splitline[6])
+            run_id, date, time, runtype, distance, duration, pace = ([splitline[i] for i in range(0, 7)])
+            if len(splitline) == 8:
+                notes = (splitline[7])
             else:
                 notes = 'NA'
+            if time == ' ':
+                time = 'NA'
 
             # Insert into db, some strings contain spaces at the end
-            params = (run_id, datetime, runtype.rstrip(' '), float(distance),
+            params = (run_id, date.rstrip(' '), time, runtype.rstrip(' '), float(distance),
                       duration.rstrip(' '), pace.rstrip(' '), notes)
+            print(params)
             database_insert(db, dbh, 'runs', params)
 
     # Read shoes file in the directory
