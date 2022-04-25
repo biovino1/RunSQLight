@@ -21,18 +21,15 @@ def get_input():
     print('If you would like to ignore a certain parameter, simply skip the input.')
     print()
 
-    '''
-    dates = input('Enter two dates to obtain all runs between (i.e. 2022-04-24): ')
+    dates = input('Enter a specific date (i.e. 2022-04-24): ')
     type = input('Enter a specific type of run (i.e. Easy, Long, etc.): ')
     distance = input('Enter a specific distance (i.e. 4): ')
     duration = input('Enter a specific duration (i.e. 00:40:00): ')
     pace = input('Enter a specific pace (i.e. 7:37): ')
-    shoe = input('Enter a specific shoe: ')
-    '''
 
-    dates, type, distance, pace, duration, shoe = ['', 'Easy', '6.%', '', '', '']
+    dates, type, distance, duration, pace = ['%%%%:%%:%%', 'Long', '6.%', '%%:%%:%%', '%:%%']
 
-    input_tuple = [dates, type, distance, pace, duration, shoe]
+    input_tuple = [dates, type, distance, duration, pace]
     return input_tuple
 
 
@@ -44,9 +41,15 @@ def make_graph(db, input_tuple):
     :param input_tuple: tuple of values
     ================================================================================================================="""
 
+    values = []
+    for i in range(len(input_tuple)):
+        values = values+input_tuple[i]
+
+    print(values)
     sq3 = '''
         SELECT * 
-        FROM 
+        FROM runs
+        WHERE 
         '''
     db.execute(sq3)
     rows = db.fetchall()
