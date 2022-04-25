@@ -18,7 +18,7 @@ def make_database_tables(db):
     sq3 = '''
         CREATE TABLE IF NOT EXISTS runs
         (   run_id TEXT PRIMARY KEY,
-            datetime TEXT,
+            date TEXT,
             type TEXT,
             distance REAL,
             duration TEXT,
@@ -75,6 +75,10 @@ def read_directory(path, db, dbh):
             # Split tabular line and assign each element to a variable
             line = line.rstrip()
             splitline = line.split('\t')
+
+            # If there are both a date and a time, split into two values
+            datetime = splitline[1].rstrip()
+            print(datetime)
             run_id, datetime, runtype, distance, duration, pace = ([splitline[i] for i in range(0, 6)])
             if len(splitline) == 7:
                 notes = (splitline[6])
@@ -82,7 +86,7 @@ def read_directory(path, db, dbh):
                 notes = 'NA'
 
             # Insert into db, some strings contain spaces at the end
-            params = (run_id, datetime.rstrip(' '), runtype.rstrip(' '), float(distance),
+            params = (run_id, datetime, runtype.rstrip(' '), float(distance),
                       duration.rstrip(' '), pace.rstrip(' '), notes)
             database_insert(db, dbh, 'runs', params)
 

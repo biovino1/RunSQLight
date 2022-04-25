@@ -20,14 +20,14 @@ def get_input():
     print('If you would like a general search, type "%" character in place of specific value.')
     print('If you would like to ignore a certain parameter, simply skip the input.')
     print()
-
-    dates = input('Enter a specific date (i.e. 2022-04-24): ')
+    '''
+    date = input('Enter a specific date (i.e. 2022-04-24): ')
     type = input('Enter a specific type of run (i.e. Easy, Long, etc.): ')
     distance = input('Enter a specific distance (i.e. 4): ')
     duration = input('Enter a specific duration (i.e. 00:40:00): ')
     pace = input('Enter a specific pace (i.e. 7:37): ')
-
-    dates, type, distance, duration, pace = ['%%%%:%%:%%', 'Long', '6.%', '%%:%%:%%', '%:%%']
+    '''
+    date, type, distance, duration, pace = ['%%%%-%%-%%', 'Long', '6.%', '%%:%%:%%', '%:%%']
 
     input_tuple = [dates, type, distance, duration, pace]
     return input_tuple
@@ -41,15 +41,12 @@ def make_graph(db, input_tuple):
     :param input_tuple: tuple of values
     ================================================================================================================="""
 
-    values = []
-    for i in range(len(input_tuple)):
-        values = values+input_tuple[i]
-
-    print(values)
-    sq3 = '''
+    print(input_tuple)
+    sq3 = f'''
         SELECT * 
         FROM runs
-        WHERE 
+        WHERE datetime LIKE {input_tuple[0]}
+        AND type LIKE {input_tuple[1]}
         '''
     db.execute(sq3)
     rows = db.fetchall()
