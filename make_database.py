@@ -85,9 +85,8 @@ def read_directory(path, db, dbh):
                 time = 'NA'
 
             # Insert into db, some strings contain spaces at the end
-            params = (run_id, date.rstrip(' '), time, runtype.rstrip(' '), float(distance),
+            params = (run_id, date.rstrip(' '), time.rstrip(' '), runtype.rstrip(' '), float(distance),
                       duration.rstrip(' '), pace.rstrip(' '), notes)
-            print(params)
             database_insert(db, dbh, 'runs', params)
 
     # Read shoes file in the directory

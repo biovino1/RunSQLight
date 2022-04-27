@@ -23,32 +23,48 @@ def make_window():
     title_text.draw(win)
 
     # Add interactive rectangles to add to/look at database
-    rec1 = Rectangle(Point(50, 100), Point(250, 150))
-    rec1.setFill('white')
-    rec1.draw(win)
-    rec2 = Rectangle(Point(50, 200), Point(250, 250))
-    rec2.setFill('white')
-    rec2.draw(win)
-    rec3 = Rectangle(Point(350, 100), Point(550, 150))
-    rec3.setFill('white')
-    rec3.draw(win)
-    rec4 = Rectangle(Point(350, 200), Point(550, 250))
-    rec4.setFill('white')
-    rec4.draw(win)
-    exit_rec = Rectangle(Point(525, 350), Point(575, 375))
+    run_ins_rec = Rectangle(Point(50, 75), Point(250, 125))
+    run_ins_rec.setFill('white')
+    run_ins_rec.draw(win)
+    shoe_ins_rec = Rectangle(Point(50, 175), Point(250, 225))
+    shoe_ins_rec.setFill('white')
+    shoe_ins_rec.draw(win)
+    time_calc_rec = Rectangle(Point(50, 275), Point(250, 325))
+    time_calc_rec.setFill('white')
+    time_calc_rec.draw(win)
+    run_log_rec = Rectangle(Point(350, 75), Point(550, 125))
+    run_log_rec.setFill('white')
+    run_log_rec.draw(win)
+    shoe_log_rec = Rectangle(Point(350, 175), Point(550, 225))
+    shoe_log_rec.setFill('white')
+    shoe_log_rec.draw(win)
+    graph_rec = Rectangle(Point(350, 275), Point(550, 325))
+    graph_rec.setFill('white')
+    graph_rec.draw(win)
+
+    # Add exit rectangle and text
+    exit_rec = Rectangle(Point(525, 25), Point(575, 50))
     exit_rec.setFill('red')
     exit_rec.draw(win)
-    rtext1 = Text(Point(150, 125), "Insert New Run")
-    rtext1.draw(win)
-    rtext2 = Text(Point(150, 225), "Insert New Shoe")
-    rtext2.draw(win)
-    rtext3 = Text(Point(450, 125), "Running Logs")
-    rtext3.draw(win)
-    rtext4 = Text(Point(450, 225), "Shoe Logs")
-    rtext4.draw(win)
+    exit_text = Text(Point(550, 38), 'X')
+    exit_text.draw(win)
+
+    # Add text for each rectangle
+    run_ins_text = Text(Point(150, 100), "Insert New Run")
+    run_ins_text.draw(win)
+    shoe_ins_text = Text(Point(150, 200), "Insert New Shoe")
+    shoe_ins_text.draw(win)
+    time_calc_text = Text(Point(150, 300), "Time Calculator")
+    time_calc_text.draw(win)
+    run_log_text = Text(Point(450, 100), "Running Logs")
+    run_log_text.draw(win)
+    shoe_log_text = Text(Point(450, 200), "Shoe Logs")
+    shoe_log_text.draw(win)
+    graph_rec_text = Text(Point(450, 300), "Graph Runs")
+    graph_rec_text.draw(win)
 
     # Return the necessary objects
-    return win, rec1, rec2, rec3, rec4, exit_rec
+    return win, run_ins_rec, shoe_ins_rec, run_log_rec, time_calc_rec, shoe_log_rec, graph_rec, exit_rec
 
 
 def clicked(click, rectangle):
@@ -79,7 +95,7 @@ def main():
     The main function calls make_window() and uses clicked() to determine which rectangle objects have been clicked.
     ================================================================================================================="""
 
-    win, rec1, rec2, rec3, rec4, exit_rec = make_window()
+    win, run_ins_rec, shoe_ins_rec, time_calc_rec, run_log_rec, shoe_log_rec, graph_rec, exit_rec = make_window()
 
     # Keep window open until exit_rec is clicked
     click = win.checkMouse()
