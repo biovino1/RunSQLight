@@ -18,25 +18,21 @@ def get_input():
     ================================================================================================================="""
 
     print()
-    print('Enter various values when prompted to obtain a graph with the desired parameters.')
-    print('If you would like a general search, type "%" character in place of specific value.')
-    print('If you would like to ignore a certain parameter, simply skip the input.')
+    print('Enter two dates that you would like to graph')
     print()
-    '''
-    date = input('Enter a specific date (i.e. 20%%-04-%%): ')
-    time = input('Enter a specific time (i.e. 4:%% PM: ')
-    type = input('Enter a specific type of run (i.e. Easy, Long, etc.): ')
-    distance = input('Enter a specific distance (i.e. 4.37): ')
-    duration = input('Enter a specific duration (i.e. %%:40:%%): ')
-    pace = input('Enter a specific pace (i.e. 7:3%): ')
-    '''
+
+    date1 = '2021-01-01'
+    date2 = '2021-01-31'
+    dates = date1, date2
+
     date, time, type, distance, duration, pace = ['2021-%%-%%', '%:%% %%', 'Long', '%.%', '%%:%%:%%', '%:%%']
 
+
     input_tuple = [date, time, type, distance, duration, pace]
-    return input_tuple
+    return input_tuple, dates
 
 
-def make_graph(db, input_tuple):
+def make_graph(db, input_tuple, dates):
     """=================================================================================================================
     This function searches the connected database using values inside a tuple
 
@@ -44,6 +40,7 @@ def make_graph(db, input_tuple):
     :param input_tuple: tuple of values
     ================================================================================================================="""
 
+    print(dates)
     sq3 = f'''
         SELECT * 
         FROM runs
@@ -54,7 +51,14 @@ def make_graph(db, input_tuple):
         AND duration LIKE '{input_tuple[4]}'
         AND pace LIKE '{input_tuple[5]}'
         '''
-    db.execute(sq3)
+    sq31 = f'''
+        SELECT *
+        FROM runs
+        WHERE date
+        BETWEEN '{dates[0]}'
+        AND '{dates[1]}'
+        '''
+    db.execute(sq31)
     rows = db.fetchall()
 
     # Gather dates and distances as np arrays
@@ -84,8 +88,8 @@ def main():
     dbh = sq3.connect('RunSQLight.db')
     db = dbh.cursor()
 
-    input_tuple = get_input()
-    make_graph(db, input_tuple)
+    input_tuple, dates = get_input()
+    make_graph(db, input_tuple, dates)
 
 
 main()
