@@ -66,7 +66,8 @@ def get_input(table_input):
     flag = True
     if table_input == 'runs':
         while flag:
-            datetime = input('Enter date and time (i.e. 2022-01-01 12:00 AM): ')
+            date = input('Enter date and time (i.e. 2022-01-01): ')
+            time = input('Enter time (i.e. 4:31 PM: ')
             type = input('Enter type of run: ')
             distance = float(input('Enter distance of run: '))
             duration = input('Enter duration of run (i.e. HH:MM:SS): ')
@@ -86,7 +87,7 @@ def get_input(table_input):
 
         # Assign uuid and return tuple
         run_id = str(uuid.uuid1())
-        input_tuple = [run_id, datetime, type, distance, duration, pace, notes]
+        input_tuple = [run_id, date, time, type, distance, duration, pace, notes]
         return input_tuple
 
     # shoes table input

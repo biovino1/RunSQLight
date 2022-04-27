@@ -18,7 +18,7 @@ def get_input():
     ================================================================================================================="""
 
     print()
-    print('Enter two dates that you would like to graph')
+    print('Enter two dates that you would like to graph: ')
     print()
 
     date1 = '2021-01-01'
@@ -26,7 +26,6 @@ def get_input():
     dates = date1, date2
 
     date, time, type, distance, duration, pace = ['2021-%%-%%', '%:%% %%', 'Long', '%.%', '%%:%%:%%', '%:%%']
-
 
     input_tuple = [date, time, type, distance, duration, pace]
     return input_tuple, dates
