@@ -60,7 +60,6 @@ def insert_run_window(db, dbh):
 
     :param db: database cursor object
     :param dbh: database connection object
-    :return win, recs: win is window object, recs are various text boxes
     ================================================================================================================="""
 
     win = GraphWin("Insert New Run", 300, 550)
@@ -111,7 +110,7 @@ def insert_run_window(db, dbh):
     shoe_text = Text(Point(75, 400), 'Shoe: ').draw(win)
 
     # Store entry boxes in list
-    entries = date_entry, time_entry, type_entry, distance_entry, duration_entry, notes_entry
+    entries = date_entry, time_entry, type_entry, distance_entry, duration_entry, notes_entry, shoe_entry
 
     # Search db for active shoes
     sq3 = '''
@@ -123,7 +122,7 @@ def insert_run_window(db, dbh):
     rows = db.fetchall()
     shoes = list()
     for row in rows:
-        shoes.append(row[0])
+        shoes.append(row[0]+' '+str(row[1]))
 
     # Write text for active shoes
     for i in range(len(shoes)):
@@ -157,10 +156,9 @@ def insert_run_window(db, dbh):
     input_list.insert(5, pace)
     input_list.insert(0, str(uuid.uuid1()))
     input_list[4] = float(input_list[4])
-    print(input_list)
 
     # Determine how many values are being inserted
-    values = ['?'] * len(input_list)
+    values = ['?'] * len(input_list[0:8])
     values = ", ".join(values)
 
     # Insert into runs table
@@ -168,17 +166,28 @@ def insert_run_window(db, dbh):
         INSERT INTO runs
         VALUES ({values})
         '''
-    db.execute(sq3, input_list)
-    dbh.commit()
+    db.execute(sq3, input_list[0:8])
 
+    # Update shoes table with distance from run
+    params = [float(input_list[4]), input_list[8]]
     sq3 = f'''
         UPDATE shoes
-        SET distance= 
-'''
+        SET distance = distance + ?
+        WHERE shoe = ?
+        '''
+    db.execute(sq3, params)
+    dbh.commit()
 
     win.close()
 
-    return win
+
+def insert_shoe_window(db, dbh):
+    """=================================================================================================================
+    This function creates the window for inserting runs.
+
+    :param db: database cursor object
+    :param dbh: database connection object
+    ================================================================================================================="""
 
 
 def clicked(click, rectangle):
@@ -223,7 +232,7 @@ def main():
     db = dbh.cursor()
 
     win, rectangles = make_main_window()
-    run_ins_win = insert_run_window(db, dbh)
+    insert_run_window(db, dbh)
 
     # Keep window open until exit_rec is clicked
     click = win.checkMouse()
