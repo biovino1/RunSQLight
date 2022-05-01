@@ -54,7 +54,7 @@ def make_main_window():
     return win, rectangles
 
 
-def insert_run_window(db, dbh):
+def insert_run(db, dbh):
     """=================================================================================================================
     This function creates the window for inserting runs.
 
@@ -139,13 +139,9 @@ def insert_run_window(db, dbh):
     click = win.checkMouse()
     while click is None:
         click = win.checkMouse()
-        if click is not None:
-            mx, my = click.getX(), click.getY()
-            recx1, recy1 = insert_rec.getP1().getX(), insert_rec.getP1().getY()
-            recx2, recy2 = insert_rec.getP2().getX(), insert_rec.getP2().getY()
-            if (recx1 < mx < recx2) and (recy1 < my < recy2):
-                for i in range(len(entries)):
-                    input_list.append(entries[i].getText())
+        click = clicked(click, insert_rec)
+    for i in range(len(entries)):
+        input_list.append(entries[i].getText())
 
     # Calculate pace from distance and duration
     duration_sec = sum(x * int(t) for x, t in zip([3600, 60, 1], input_list[4].split(":")))
@@ -177,17 +173,66 @@ def insert_run_window(db, dbh):
         '''
     db.execute(sq3, params)
     dbh.commit()
+    print(f'Inserted into db: {input_list}')
 
     win.close()
 
 
-def insert_shoe_window(db, dbh):
+def insert_shoe(db, dbh):
     """=================================================================================================================
     This function creates the window for inserting runs.
 
     :param db: database cursor object
     :param dbh: database connection object
     ================================================================================================================="""
+
+    win = GraphWin("Insert New Shoe", 300, 300)
+    win.setBackground('light grey')
+    title_text = Text(Point(150, 25), "Insert New Shoe").draw(win)
+    title_text.setSize(20)
+
+    # Shoe entry box/text
+    shoe_entry = Entry(Point(200, 100), 12).draw(win)
+    shoe_entry.setFill('white')
+    shoe_text = Text(Point(75, 100), 'Enter shoe name: ').draw(win)
+
+    # Distance entry box/text
+    distance_entry = Entry(Point(200, 150), 12).draw(win)
+    distance_entry.setFill('white')
+    distance_text = Text(Point(75, 150), 'Enter distance: ').draw(win)
+
+    # Rectangle that inserts data into db
+    insert_rec = Rectangle(Point(100, 250), Point(200, 275)).draw(win)
+    insert_rec.setFill('white')
+    insert_rec_text = Text(Point(150, 263), 'Insert').draw(win)
+
+    # Store entry boxes in list
+    entries = shoe_entry, distance_entry
+
+    # Insert entry box data into database when insert_rec is clicked
+    input_list = list()
+    click = win.checkMouse()
+    while click is None:
+        click = win.checkMouse()
+        click = clicked(click, insert_rec)
+    for i in range(len(entries)):
+        input_list.append(entries[i].getText())
+    input_list.append('N')
+
+    # Determine how many values are being inserted
+    values = ['?'] * len(input_list)
+    values = ", ".join(values)
+
+    # Insert into shoes table
+    sq3 = f'''
+        INSERT INTO shoes
+        VALUES ({values})
+        '''
+    db.execute(sq3, input_list)
+    dbh.commit()
+    print(f'Inserted into db: {input_list}')
+
+    win.close()
 
 
 def clicked(click, rectangle):
@@ -213,14 +258,34 @@ def clicked(click, rectangle):
         return None
 
 
-def control_window(win, rectangles):
+def control_window(win, rectangles, db, dbh):
     """=================================================================================================================
     This function determines which rectangle object (besides the exit rec) was clicked and returns which window needs
     to be opened.
 
     :param win: RunSQLite window
     :param rectangles: list of all rectangles in win
+        run_ins_rec, shoe_ins_rec, run_log_rec, time_calc_rec, shoe_log_rec, graph_rec
+    :param db: database cursor object
+    :param dbh: database connection object
     ================================================================================================================="""
+
+    click = win.getMouse()
+    mx, my = click.getX(), click.getY()
+
+    # Call insert_run
+    x1, y1 = rectangles[0].getP1().getX(), rectangles[0].getP1().getY()
+    x2, y2 = rectangles[0].getP2().getX(), rectangles[0].getP2().getY()
+    if (x1 < mx < x2) and (y1 < my < y2):
+        insert_run(db, dbh)
+
+    # Call insert_shoe
+    x1, y1 = rectangles[1].getP1().getX(), rectangles[1].getP1().getY()
+    x2, y2 = rectangles[1].getP2().getX(), rectangles[1].getP2().getY()
+    if (x1 < mx < x2) and (y1 < my < y2):
+        insert_shoe(db, dbh)
+
+    return click
 
 
 def main():
@@ -232,12 +297,11 @@ def main():
     db = dbh.cursor()
 
     win, rectangles = make_main_window()
-    insert_run_window(db, dbh)
 
     # Keep window open until exit_rec is clicked
     click = win.checkMouse()
-    while click == None:
-        click = win.checkMouse()
+    while click is None:
+        click = control_window(win, rectangles, db, dbh)
         click = clicked(click, rectangles[6])
     win.close()
 
