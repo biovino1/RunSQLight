@@ -1,12 +1,16 @@
 """=====================================================================================================================
 This scripts creates a graphical interface that interacts with the database.
 
-Ben Iovino  4/23/22   RunSQLight
+Ben Iovino  5/3/22   RunSQLight
 ===================================================================================================================="""
 
 from graphics import *
 import sqlite3 as sq3
 import uuid
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from datetime import timedelta, date
 
 
 def make_main_window():
@@ -67,43 +71,43 @@ def insert_run(db, dbh):
     # Date entry box/text
     date_entry = Entry(Point(250, 100), 12).draw(win)
     date_entry.setFill('white')
-    date_entry.setText('2022-04-27')
+    date_entry.setText('YYYY-MM-DD')
     date_text = Text(Point(125, 100), 'Enter date: ').draw(win)
 
     # Time entry box/text
     time_entry = Entry(Point(250, 150), 12).draw(win)
     time_entry.setFill('white')
-    time_entry.setText('9:00 AM')
+    time_entry.setText('0:00 AM/PM')
     time_text = Text(Point(125, 150), 'Enter time: ').draw(win)
 
     # Type entry box/text
     type_entry = Entry(Point(250, 200), 12).draw(win)
     type_entry.setFill('white')
-    type_entry.setText('Easy')
+    type_entry.setText(' ')
     type_text = Text(Point(125, 200), 'Enter type: ').draw(win)
 
     # Distance entry box/text
     distance_entry = Entry(Point(250, 250), 12).draw(win)
     distance_entry.setFill('white')
-    distance_entry.setText('6.0')
+    distance_entry.setText('0.0')
     distance_text = Text(Point(125, 250), 'Enter distance: ').draw(win)
 
     # Duration entry box/text
     duration_entry = Entry(Point(250, 300), 12).draw(win)
     duration_entry.setFill('white')
-    duration_entry.setText('00:45:00')
+    duration_entry.setText('HH:MM:SS')
     duration_text = Text(Point(125, 300), 'Enter duration: ').draw(win)
 
     # Notes entry box/text
     notes_entry = Entry(Point(250, 350), 12).draw(win)
     notes_entry.setFill('white')
-    notes_entry.setText('Fun')
+    notes_entry.setText(' ')
     notes_text = Text(Point(125, 350), 'Notes: ').draw(win)
 
     # Shoes entry box/text
-    shoe_entry = Entry(Point(250, 400), 12).draw(win)
+    shoe_entry = Entry(Point(250, 400), 20).draw(win)
     shoe_entry.setFill('white')
-    shoe_entry.setText('ReebokForever Floatride Energy 2v8')
+    shoe_entry.setText('Enter shoe from below')
     shoe_text = Text(Point(125, 400), 'Shoe: ').draw(win)
 
     # Add exit rectangle and text
@@ -124,7 +128,7 @@ def insert_run(db, dbh):
     rows = db.fetchall()
     shoes = list()
     for row in rows:
-        shoes.append(row[0]+' '+str(row[1]))
+        shoes.append(row[0])
 
     # Write text for active shoes
     for i in range(len(shoes)):
@@ -307,6 +311,10 @@ def running_log(db):
     year = year_entry.getText()
     win.close()
 
+    # Add 0 to month if not in text box
+    if len(month) < 2:
+        month = f'0{month}'
+
     # Search db for active runs
     sq3 = f'''
         SELECT *
@@ -318,7 +326,7 @@ def running_log(db):
     row_len = len(rows)
 
     # Window displaying months and years
-    win = GraphWin("Running Log", 1000, 100+50*row_len)
+    win = GraphWin("Running Log", 1000, 100+25*row_len)
     win.setBackground('light grey')
 
     date_text = Text(Point(50, 25), 'Date').draw(win)
@@ -439,7 +447,7 @@ def shoe_log(db, dbh):
     # Update shoes table with new retirement status
     if retirement_status == 'Y':
         new_status = 'N'
-    if retirement_status == 'N':
+    else:
         new_status = 'Y'
     params = [new_status, shoe]
     sq3 = f'''
@@ -460,6 +468,105 @@ def graph_db(db):
 
     :param db: database cursor object
     ================================================================================================================="""
+
+    # Window displaying months and years
+    win = GraphWin("Graphing Runs", 500, 400)
+    win.setBackground('light grey')
+
+    # Date text and entry boxes
+    graph_text = Text(Point(250, 25), 'Enter two dates to graph between:').draw(win)
+    date1_text = Text(Point(150, 75), 'Date 1:').draw(win)
+    date2_text = Text(Point(350, 75), 'Date 2:').draw(win)
+    date1_entry = Entry(Point(150, 110), 12).draw(win)
+    date1_entry.setFill('white')
+    date1_entry.setText('2022-04-01')
+    date2_entry = Entry(Point(350, 110), 12).draw(win)
+    date2_entry.setFill('white')
+    date2_entry.setText('2022-04-30')
+    entries = date1_entry, date2_entry
+
+    # Graph and exit rec and text
+    graph_rec = Rectangle(Point(200, 350), Point(300, 375)).draw(win)
+    graph_rec.setFill('white')
+    graph_text = Text(Point(250, 363), 'Graph').draw(win)
+    exit_rec = Rectangle(Point(425, 25), Point(475, 50)).draw(win)
+    exit_rec.setFill('red')
+    exit_text = Text(Point(450, 38), 'X').draw(win)
+
+    # Check for click on graph box and store text
+    entry_text = list()
+    click = win.checkMouse()
+    while click is None:
+        click = win.checkMouse()
+
+        # Check if graph button was clicked, graph using dates in entry boxes
+        if click is not None:
+            mx, my = click.getX(), click.getY()
+            x1, y1 = graph_rec.getP1().getX(), graph_rec.getP1().getY()
+            x2, y2 = graph_rec.getP2().getX(), graph_rec.getP2().getY()
+            if (x1 < mx < x2) and (y1 < my < y2):
+                date1 = date1_entry.getText()
+                date2 = date2_entry.getText()
+
+                # Find all dates in between two given dates
+                start_dt = date1.split('-')
+                end_dt = date2.split('-')
+                start_dt = date(int(start_dt[0]), int(start_dt[1]), int(start_dt[2]))
+                end_dt = date(int(end_dt[0]), int(end_dt[1]), int(end_dt[2]))
+                delta = end_dt - start_dt
+
+                days = list()
+                for i in range(delta.days + 1):
+                    day = start_dt + timedelta(days=i)
+                    days.append(day)
+
+                sq3 = f'''
+                        SELECT *
+                        FROM runs
+                        WHERE date
+                        BETWEEN '{date1}'
+                        AND '{date2}'
+                        '''
+                db.execute(sq3)
+                rows = db.fetchall()
+
+                # Gather dates and distances from db
+                run_dates = list()
+                run_distances = list()
+                for row in rows:
+                    run_date = row[1].split('-')
+                    run_date = date(int(run_date[0]), int(run_date[1]), int(run_date[2]))
+                    run_dates.append(run_date)
+                    run_distances.append(row[4])
+
+                # Gather all dates in between, assign distance to corresponding day
+                dates = list()
+                distances = list()
+                i = 0
+                j = 0
+                for day in days:
+                    dates.append(day)
+                    if run_dates[i] == dates[j]:
+                        distances.append(run_distances[i])
+                        if i < len(run_dates)-1:
+                            i += 1
+                    else:
+                        distances.append(int(0))
+                    j += 1
+                array_dates = np.asarray(dates)
+                array_distances = np.asarray(distances)
+
+                # Plot date vs distance
+                fig, ax = plt.subplots(figsize=(12, 8))
+                ax.bar(array_dates, array_distances)
+                ax.set_xlabel('Date')
+                ax.set_ylabel('Distance (mi)')
+                plt.title(f'Runs Between {date1} And {date2}')
+                plt.xticks(rotation=90, fontsize=5)
+                plt.show()
+
+        click = clicked(click, exit_rec)
+    win.close()
 
 
 def clicked(click, rectangle):
