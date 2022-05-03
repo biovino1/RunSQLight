@@ -264,32 +264,202 @@ def insert_shoe(db, dbh):
     win.close()
 
 
-def running_log(db, dbh):
+def running_log(db):
     """=================================================================================================================
     This function creates the window for the running log
+
+    :param db: database cursor object
+    ================================================================================================================="""
+
+    # Create a window to search for desired month and year
+    win = GraphWin("Running Log", 300, 200)
+    win.setBackground('light grey')
+
+    # Entry boxes
+    month_text = Text(Point(100, 25), 'Month').draw(win)
+    year_text = Text(Point(200, 25), 'Year').draw(win)
+    month_entry = Entry(Point(100, 50), 8).draw(win)
+    month_entry.setFill('white')
+    year_entry = Entry(Point(200, 50), 8).draw(win)
+    year_entry.setFill('white')
+
+    # Search and exit rectangle
+    search_rec = Rectangle(Point(100, 150), Point(200, 175)).draw(win)
+    search_rec.setFill('white')
+    search_rec_text = Text(Point(150, 163), 'Search').draw(win)
+    exit_rec = Rectangle(Point(260, 25), Point(285, 50)).draw(win)
+    exit_rec.setFill('red')
+    exit_text = Text(Point(273, 38), 'X').draw(win)
+
+    # Check for click on search box and store text
+    click = win.checkMouse()
+    while click is None:
+        click = win.checkMouse()
+        if click is not None:
+            mx, my = click.getX(), click.getY()
+            x1, y1 = exit_rec.getP1().getX(), exit_rec.getP1().getY()
+            x2, y2 = exit_rec.getP2().getX(), exit_rec.getP2().getY()
+            if (x1 < mx < x2) and (y1 < my < y2):
+                win.close()
+                return
+        click = clicked(click, search_rec)
+    month = month_entry.getText()
+    year = year_entry.getText()
+    win.close()
+
+    # Search db for active runs
+    sq3 = f'''
+        SELECT *
+        FROM runs
+        WHERE date LIKE '{year}-{month}-%%'
+        '''
+    db.execute(sq3)
+    rows = db.fetchall()
+    row_len = len(rows)
+
+    # Window displaying months and years
+    win = GraphWin("Running Log", 1000, 100+50*row_len)
+    win.setBackground('light grey')
+
+    date_text = Text(Point(50, 25), 'Date').draw(win)
+    time_text = Text(Point(100, 25), 'Time').draw(win)
+    type_text = Text(Point(150, 25), 'Type').draw(win)
+    distance_text = Text(Point(215, 25), 'Distance').draw(win)
+    duration_text = Text(Point(290, 25), 'Duration').draw(win)
+    pace_text = Text(Point(350, 25), 'Pace').draw(win)
+    notes_text = Text(Point(700, 25), 'Notes').draw(win)
+
+    # Take each row and print in window
+    i = 0
+    for row in rows:
+        date_text = Text(Point(50, 50+i*25), row[1]).draw(win)
+        date_text.setSize(7)
+        time_text = Text(Point(100, 50+i*25), row[2]).draw(win)
+        time_text.setSize(7)
+        type_text = Text(Point(150, 50+i*25), row[3]).draw(win)
+        type_text.setSize(7)
+        distance_text = Text(Point(215, 50+i*25), row[4]).draw(win)
+        distance_text.setSize(7)
+        duration_text = Text(Point(290, 50+i*25), row[5]).draw(win)
+        duration_text.setSize(7)
+        pace_text = Text(Point(350, 50+i*25), row[6]).draw(win)
+        pace_text.setSize(7)
+
+        # Break notes up if too long for window (>25 words)
+        window = 20
+        notes_split = row[7].split(' ')
+        notes = list()
+        if len(notes_split) > window:
+            notes.append(' '.join(notes_split[:window]))
+            notes.append(' '.join(notes_split[window:window+window]))
+            notes_text1 = Text(Point(700, 50+i*25), notes[0]).draw(win)
+            notes_text1.setSize(7)
+            notes_text2 = Text(Point(700, 60+i*25), notes[1]).draw(win)
+            notes_text2.setSize(7)
+        else:
+            notes_text1 = Text(Point(700, 50+i*25), row[7]).draw(win)
+            notes_text1.setSize(7)
+        i += 1
+
+
+def shoe_log(db, dbh):
+    """=================================================================================================================
+    This function creates the window for the shoe log
 
     :param db: database cursor object
     :param dbh: database connection object
     ================================================================================================================="""
 
-    win = GraphWin("Running Log", 800, 800)
-    win.setBackground('light grey')
-    title_text = Text(Point(500, 25), "Running Log").draw(win)
-    title_text.setSize(20)
-
-    # Search db for active runs
-    sq3 = '''
-            SELECT *
-            FROM runs
-            WHERE date LIKE '2022-04-%%'
-            '''
+    # Search db for all shoes
+    sq3 = f'''
+        SELECT *
+        FROM shoes
+        '''
     db.execute(sq3)
     rows = db.fetchall()
+    row_len = len(rows)
+
+    # Window displaying months and years
+    win = GraphWin("Running Log", 500, 125+25*row_len)
+    win.setBackground('light grey')
+
+    # Text
+    shoe_text = Text(Point(100, 25), 'Shoe').draw(win)
+    distance_text = Text(Point(250, 25), 'Distance').draw(win)
+    retired_text = Text(Point(400, 25), 'Retired').draw(win)
+
+    # Take each row and print in window
     i = 0
     for row in rows:
-        runs_text = Text(Point(500, 50 + 25 * i), f'{row[1], row[2], row[3], row[4], row[5], row[6], row[7]}').draw(win)
-        runs_text.setSize(7)
+        shoe_text = Text(Point(100, 50+i*25), row[0]).draw(win)
+        shoe_text.setSize(7)
+        distance_text = Text(Point(250, 50+i*25), row[1]).draw(win)
+        distance_text.setSize(7)
+        distance_text = Text(Point(400, 50+i*25), row[2]).draw(win)
+        distance_text.setSize(7)
         i += 1
+
+    # Entry box to change retirement status of shoe
+    retire_text = Text(Point(100, 90+25*row_len), 'Change Retirement Status: ').draw(win)
+    retire_entry = Entry(Point(275, 90+25*row_len), 12).draw(win)
+    retire_entry.setFill('white')
+
+    # Change and exit recs
+    change_rec = Rectangle(Point(350, 75+25*row_len), Point(425, 105+25*row_len)).draw(win)
+    change_rec.setFill('white')
+    search_rec_text = Text(Point(385, 90+25*row_len), 'Change').draw(win)
+    exit_rec = Rectangle(Point(450, 75+25*row_len), Point(485, 105+25*row_len)).draw(win)
+    exit_rec.setFill('red')
+    exit_text = Text(Point(468, 90+25*row_len), 'X').draw(win)
+
+    # Check for click on search box and store text
+    click = win.checkMouse()
+    while click is None:
+        click = win.checkMouse()
+        if click is not None:
+            mx, my = click.getX(), click.getY()
+            x1, y1 = exit_rec.getP1().getX(), exit_rec.getP1().getY()
+            x2, y2 = exit_rec.getP2().getX(), exit_rec.getP2().getY()
+            if (x1 < mx < x2) and (y1 < my < y2):
+                win.close()
+                return
+        click = clicked(click, change_rec)
+    shoe = retire_entry.getText()
+
+    # Search db for shoe in entry box
+    sq3 = f'''
+            SELECT *
+            FROM shoes
+            WHERE shoe = ?
+            '''
+    db.execute(sq3, [shoe])
+    rows = db.fetchall()
+    retirement_status = rows[0][2]
+
+    # Update shoes table with new retirement status
+    if retirement_status == 'Y':
+        new_status = 'N'
+    if retirement_status == 'N':
+        new_status = 'Y'
+    params = [new_status, shoe]
+    sq3 = f'''
+            UPDATE shoes
+            SET retired = ?
+            WHERE shoe = ?
+            '''
+    db.execute(sq3, params)
+    dbh.commit()
+    print(f'{shoe} is now {new_status}')
+
+    win.close()
+
+
+def graph_db(db):
+    """=================================================================================================================
+    This function graphs desired data from user input
+
+    :param db: database cursor object
+    ================================================================================================================="""
 
 
 def clicked(click, rectangle):
@@ -346,7 +516,19 @@ def control_window(win, rectangles, db, dbh):
     x1, y1 = rectangles[2].getP1().getX(), rectangles[2].getP1().getY()
     x2, y2 = rectangles[2].getP2().getX(), rectangles[2].getP2().getY()
     if (x1 < mx < x2) and (y1 < my < y2):
-        running_log(db, dbh)
+        running_log(db)
+
+    # Call shoe_log
+    x1, y1 = rectangles[3].getP1().getX(), rectangles[3].getP1().getY()
+    x2, y2 = rectangles[3].getP2().getX(), rectangles[3].getP2().getY()
+    if (x1 < mx < x2) and (y1 < my < y2):
+        shoe_log(db, dbh)
+
+    # Call graph_db
+    x1, y1 = rectangles[4].getP1().getX(), rectangles[4].getP1().getY()
+    x2, y2 = rectangles[4].getP2().getX(), rectangles[4].getP2().getY()
+    if (x1 < mx < x2) and (y1 < my < y2):
+        graph_db(db)
 
     return click
 
@@ -367,6 +549,7 @@ def main():
         click = control_window(win, rectangles, db, dbh)
         click = clicked(click, rectangles[5])
     win.close()
+    exit(0)
 
 
 main()
