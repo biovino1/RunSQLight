@@ -284,8 +284,10 @@ def running_log(db):
     year_text = Text(Point(200, 25), 'Year').draw(win)
     month_entry = Entry(Point(100, 50), 8).draw(win)
     month_entry.setFill('white')
+    month_entry.setText(date.today().month)
     year_entry = Entry(Point(200, 50), 8).draw(win)
     year_entry.setFill('white')
+    year_entry.setText(date.today().year)
 
     # Search and exit rectangle
     search_rec = Rectangle(Point(100, 150), Point(200, 175)).draw(win)
@@ -470,7 +472,7 @@ def graph_db(db):
     ================================================================================================================="""
 
     # Window displaying months and years
-    win = GraphWin("Graphing Runs", 500, 400)
+    win = GraphWin("Graphing Runs", 500, 200)
     win.setBackground('light grey')
 
     # Date text and entry boxes
@@ -479,16 +481,20 @@ def graph_db(db):
     date2_text = Text(Point(350, 75), 'Date 2:').draw(win)
     date1_entry = Entry(Point(150, 110), 12).draw(win)
     date1_entry.setFill('white')
-    date1_entry.setText('2022-04-01')
     date2_entry = Entry(Point(350, 110), 12).draw(win)
     date2_entry.setFill('white')
-    date2_entry.setText('2022-04-30')
     entries = date1_entry, date2_entry
 
+    # Get current date, fill entry boxes
+    today = date.today()
+    thirty_ago = today-timedelta(days=30)
+    date1_entry.setText(thirty_ago)
+    date2_entry.setText(today)
+
     # Graph and exit rec and text
-    graph_rec = Rectangle(Point(200, 350), Point(300, 375)).draw(win)
+    graph_rec = Rectangle(Point(200, 150), Point(300, 175)).draw(win)
     graph_rec.setFill('white')
-    graph_text = Text(Point(250, 363), 'Graph').draw(win)
+    graph_text = Text(Point(250, 163), 'Graph').draw(win)
     exit_rec = Rectangle(Point(425, 25), Point(475, 50)).draw(win)
     exit_rec.setFill('red')
     exit_text = Text(Point(450, 38), 'X').draw(win)
@@ -531,28 +537,26 @@ def graph_db(db):
                 rows = db.fetchall()
 
                 # Gather dates and distances from db
-                run_dates = list()
-                run_distances = list()
+                run_dict = dict()
                 for row in rows:
                     run_date = row[1].split('-')
                     run_date = date(int(run_date[0]), int(run_date[1]), int(run_date[2]))
-                    run_dates.append(run_date)
-                    run_distances.append(row[4])
+                    if run_date not in run_dict.keys():
+                        run_dict.update({run_date: (row[4])})
+                    else:
+                        run_dict[run_date] += row[4]
 
-                # Gather all dates in between, assign distance to corresponding day
+                # Add each date and distance to a list
                 dates = list()
                 distances = list()
-                i = 0
-                j = 0
                 for day in days:
                     dates.append(day)
-                    if run_dates[i] == dates[j]:
-                        distances.append(run_distances[i])
-                        if i < len(run_dates)-1:
-                            i += 1
-                    else:
-                        distances.append(int(0))
-                    j += 1
+                    if day in run_dict.keys():  # If date is in dict, add corresponding distance
+                        distances.append(run_dict[day])
+                    else:  # If date is not in dict, add 0 for distance
+                        distances.append(0)
+
+                # Create arrays out of lists
                 array_dates = np.asarray(dates)
                 array_distances = np.asarray(distances)
 
@@ -561,6 +565,7 @@ def graph_db(db):
                 ax.bar(array_dates, array_distances)
                 ax.set_xlabel('Date')
                 ax.set_ylabel('Distance (mi)')
+                ax.set_xticks(array_dates)
                 plt.title(f'Runs Between {date1} And {date2}')
                 plt.xticks(rotation=90, fontsize=5)
                 plt.show()
