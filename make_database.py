@@ -78,7 +78,7 @@ def read_directory(path, db, dbh):
             splitline = line.split('\t')
             run_id, date, time, runtype, distance, duration, pace = ([splitline[i] for i in range(0, 7)])
             if len(splitline) > 7:
-                notes = ''.join(splitline[7:])
+                notes = 'NA'
             else:
                 notes = 'NA'
             if time == ' ':

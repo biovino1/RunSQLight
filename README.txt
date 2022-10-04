@@ -16,8 +16,8 @@ RunSQLite.py connects to RunSQLite.db to insert/update/query data from the origi
 another graphical interface that can be used to add together time, separate from RunSQLite.py so they can be run
 side by side.
 
-To protect some personal data, notes from the original log.txt file have been removed and replaced with strings
-of random characters and spaces.
+To protect some personal data, the original log.txt file is not included in the repository. All notes from this 
+file were not included in the .db file and are shown as 'NA' when looking at runs through the RunSQLite.py program.
 
 When trying to exit out of a window, make sure to press the red box with an 'X' or 'EXIT' inside the graphic to keep
 the program running.
